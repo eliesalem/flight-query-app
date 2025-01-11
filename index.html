@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Query Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Flight Query System</h1>
+        
+        <!-- Form to input flight query -->
+        <textarea id="queryInput" placeholder="Enter your flight query..." rows="4" cols="50"></textarea><br><br>
+        
+        <button id="submitButton" onclick="submitQuery()">Submit Query</button>
+        
+        <div id="loadingMessage" class="hidden">Loading...</div>
+        
+        <div id="response" class="response">
+            <h2>Response:</h2>
+            <p id="responseText">Your result will appear here.</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

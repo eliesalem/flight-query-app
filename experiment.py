@@ -490,7 +490,7 @@ print("\n")
 print("DB Result: ", query_result[:10])
 
 import pickle
-from models import AttnEncoderDecoder  # Import your model class
+from models import AttnEncoderDecoder, AttnEncoderDecoder2  # Import both model classes
 
 # Load tokenizers
 with open("hf_src_tokenizer.pkl", "rb") as f_src:
@@ -498,22 +498,33 @@ with open("hf_src_tokenizer.pkl", "rb") as f_src:
 with open("hf_tgt_tokenizer.pkl", "rb") as f_tgt:
     hf_tgt_tokenizer = pickle.load(f_tgt)
 
-# Re-instantiate the model
+# Re-instantiate model 1
 model = AttnEncoderDecoder(
     hf_src_tokenizer=hf_src_tokenizer,
     hf_tgt_tokenizer=hf_tgt_tokenizer,
-    hidden_size=2,  # Match the hidden size used during training
-    layers=1         # Match the number of layers used during training
+    hidden_size=2,  # Match training parameters
+    layers=1
 ).to('cuda' if torch.cuda.is_available() else 'cpu')
 
-# Load saved weights
+# Load weights for model 1
 model.load_state_dict(torch.load("attn_encoder_decoder_weights.pth"))
-model.eval()  # Set the model to evaluation mode
+model.eval()
 
-# Use the model for prediction
+# Re-instantiate model 2
+model2 = AttnEncoderDecoder2(
+    hf_src_tokenizer=hf_src_tokenizer,
+    hf_tgt_tokenizer=hf_tgt_tokenizer,
+    hidden_size=2,  # Match training parameters
+    layers=1
+).to('cuda' if torch.cuda.is_available() else 'cpu')
+
+# Load weights for model 2
+model2.load_state_dict(torch.load("attn_encoder_decoder2_weights.pth"))
+model2.eval()
+
+# Prediction functions
 def predict_flight_query(query):
     return model.predict(query)
 
-prediction = predict_flight_query(query)
-print("Prediction:", prediction)
-    
+def predict_flight_query_with_model2(query):
+    return model2.predict(query)

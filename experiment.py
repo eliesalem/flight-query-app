@@ -1,7 +1,7 @@
 
 import sys
 from collections import defaultdict
-
+'''
 # Check if the script was called with a query argument
 if len(sys.argv) > 1:
     query = sys.argv[1]  # The first command-line argument is the query
@@ -9,7 +9,8 @@ if len(sys.argv) > 1:
 else:
     print("No query provided.")
 
-
+'''
+query = "flights from boston to new york"
 # Please do not change this cell because some hidden tests might depend on it.
 import subprocess
 import os
@@ -123,12 +124,12 @@ import transform as xform
 arithmetic_grammar, arithmetic_augmentations = xform.parse_augmented_grammar(
     """
     ## Sample grammar for arithmetic expressions
-    
+
     S -> NUM                              : lambda Num: Num
        | S OP S                           : lambda S1, Op, S2: Op(S1, S2)
 
     OP -> ADD                             : lambda Op: Op
-        | SUB 
+        | SUB
         | MULT
         | DIV
 
@@ -154,8 +155,8 @@ def interpret(tree, augmentations):
     syntactic_rule = tree.productions()[0]
     #print(f"Syntactic rule: {syntactic_rule}")  # Debugging line
     semantic_rule = augmentations[syntactic_rule]
-    child_meanings = [interpret(child, augmentations) 
-                      for child in tree 
+    child_meanings = [interpret(child, augmentations)
+                      for child in tree
                       if isinstance(child, nltk.Tree)]
     #print(f"Child meanings: {child_meanings}")  # Debugging line
     result = semantic_rule(*child_meanings)
@@ -175,23 +176,23 @@ def constant(value):
   return lambda *args: value
 
 def first(*args):
-  """Return the value of the first (and perhaps only) subconstituent, 
-     ignoring any others"""  
+  """Return the value of the first (and perhaps only) subconstituent,
+     ignoring any others"""
   return args[0]
 
 def numeric_template(rhs):
-  """Ignore the subphrase meanings and lookup the first right-hand-side symbol 
+  """Ignore the subphrase meanings and lookup the first right-hand-side symbol
      as a number"""
   return constant({'zero':0, 'one':1, 'two':2, 'three':3, 'four':4, 'five':5,
           'six':6, 'seven':7, 'eight':8, 'nine':9, 'ten':10}[rhs[0]])
 
 def forward(F, A):
-  """Forward application: Return the application of the first 
+  """Forward application: Return the application of the first
      argument to the second"""
   return F(A)
 
 def backward(A, F):
-  """Backward application: Return the application of the second 
+  """Backward application: Return the application of the second
      argument to the first"""
   return F(A)
 
@@ -209,7 +210,7 @@ for split in ['train', 'dev', 'test']:
     src_in_file = f'{data_path}{split}_flightid.nl'
     tgt_in_file = f'{data_path}{split}_flightid.sql'
     out_file = f'{data_path}{split}.csv'
-    
+
     with open(src_in_file, 'r') as f_src_in, open(tgt_in_file, 'r') as f_tgt_in:
         with open(out_file, 'w') as f_out:
             src, tgt= [], []
@@ -223,7 +224,7 @@ tokenizer_pattern = '\d+|st\.|[\w-]+|\$[\d\.]+|\S+'
 nltk_tokenizer = nltk.tokenize.RegexpTokenizer(tokenizer_pattern)
 def tokenize_nltk(string):
   return nltk_tokenizer.tokenize(string.lower())
-  
+
 ## Demonstrating the tokenizer
 ## Note especially the handling of `"11pm"` and hyphenated words.
 #print(tokenize_nltk("Are there any first-class flights from St. Louis at 11pm for less than $3.50?"))
@@ -252,31 +253,31 @@ eos_token = '<eos>'
 src_tokenizer = Tokenizer(WordLevel(unk_token=unk_token))
 src_tokenizer.normalizer = normalizers.Lowercase()
 src_tokenizer.pre_tokenizer = Split(Regex(tokenizer_pattern),
-                                    behavior='removed', 
+                                    behavior='removed',
                                     invert=True)
 
-src_trainer = WordLevelTrainer(min_frequency=MIN_FREQ, 
+src_trainer = WordLevelTrainer(min_frequency=MIN_FREQ,
                                special_tokens=[pad_token, unk_token])
-src_tokenizer.train_from_iterator(train_data['src'], 
+src_tokenizer.train_from_iterator(train_data['src'],
                                   trainer=src_trainer)
 
 ## target tokenizer
 tgt_tokenizer = Tokenizer(WordLevel(unk_token=unk_token))
 tgt_tokenizer.pre_tokenizer = WhitespaceSplit()
 
-tgt_trainer = WordLevelTrainer(min_frequency=MIN_FREQ, 
-                               special_tokens=[pad_token, unk_token, 
+tgt_trainer = WordLevelTrainer(min_frequency=MIN_FREQ,
+                               special_tokens=[pad_token, unk_token,
                                                bos_token, eos_token])
-tgt_tokenizer.train_from_iterator(train_data['tgt'], 
+tgt_tokenizer.train_from_iterator(train_data['tgt'],
                                   trainer=tgt_trainer)
 tgt_tokenizer.post_processor = \
-    TemplateProcessing(single=f"{bos_token} $A {eos_token}", 
+    TemplateProcessing(single=f"{bos_token} $A {eos_token}",
                        special_tokens=[(bos_token,
-                                        tgt_tokenizer.token_to_id(bos_token)), 
-                                       (eos_token, 
+                                        tgt_tokenizer.token_to_id(bos_token)),
+                                       (eos_token,
                                         tgt_tokenizer.token_to_id(eos_token))])
 
-hf_src_tokenizer = PreTrainedTokenizerFast(tokenizer_object=src_tokenizer, 
+hf_src_tokenizer = PreTrainedTokenizerFast(tokenizer_object=src_tokenizer,
                                            pad_token=pad_token)
 hf_tgt_tokenizer = PreTrainedTokenizerFast(tokenizer_object=tgt_tokenizer,
                                            pad_token=pad_token)
@@ -323,23 +324,23 @@ def collate_fn(examples):
     for b in range(bsz):
         src_batch[b][:len(src_ids[b])] = torch.LongTensor(src_ids[b]).to(device)
         tgt_batch[b][:len(tgt_ids[b])] = torch.LongTensor(tgt_ids[b]).to(device)
-    
+
     batch['src_lengths'] = src_len
     batch['src_ids'] = src_batch
     batch['tgt_ids'] = tgt_batch
     return batch
 
-train_iter = torch.utils.data.DataLoader(train_data, 
-                                         batch_size=BATCH_SIZE, 
-                                         shuffle=True, 
+train_iter = torch.utils.data.DataLoader(train_data,
+                                         batch_size=BATCH_SIZE,
+                                         shuffle=True,
                                          collate_fn=collate_fn)
-val_iter = torch.utils.data.DataLoader(val_data, 
-                                       batch_size=BATCH_SIZE, 
-                                       shuffle=False, 
+val_iter = torch.utils.data.DataLoader(val_data,
+                                       batch_size=BATCH_SIZE,
+                                       shuffle=False,
                                        collate_fn=collate_fn)
-test_iter = torch.utils.data.DataLoader(test_data, 
-                                        batch_size=TEST_BATCH_SIZE, 
-                                        shuffle=False, 
+test_iter = torch.utils.data.DataLoader(test_data,
+                                        batch_size=TEST_BATCH_SIZE,
+                                        shuffle=False,
                                         collate_fn=collate_fn)
 
 @func_set_timeout(TIMEOUT)
@@ -392,7 +393,7 @@ def depart_around(time):
 
 def add_delta(tme, delta):
     # transform to a full datetime first
-    return (datetime.datetime.combine(datetime.date.today(), tme) + 
+    return (datetime.datetime.combine(datetime.date.today(), tme) +
             datetime.timedelta(minutes=delta)).time()
 
 def miltime(minutes):
@@ -411,10 +412,10 @@ def parse_tree(sentence):
       return parses[0]
   except:
     return None
-  
+
 def check_coverage(sentence_file):
-    """ Tests the coverage of the grammar on the sentences in the 
-    file `sentence_file`. Returns the number of sentences that parse 
+    """ Tests the coverage of the grammar on the sentences in the
+    file `sentence_file`. Returns the number of sentences that parse
     as well as the total number of sentences in the file
     """
     parsed = 0
@@ -435,7 +436,7 @@ def verify(predicted_sql, gold_sql, silent=True):
         predicted_sql: the predicted SQL query
         gold_sql: the reference SQL query to compare against
         silent: print outputs or not
-    Returns: 
+    Returns:
         True if the returned results are the same, otherwise False
     """
     # Execute predicted SQL
@@ -461,7 +462,7 @@ def verify(predicted_sql, gold_sql, silent=True):
     # Verify correctness
     if gold_result == predicted_result:
         return True
-    
+
 def rule_based_trial(sentence, gold_sql):
     print("Sentence: ", sentence, "\n")
     tree = parse_tree(sentence)
@@ -488,3 +489,31 @@ query_result = execute_sql(query_sql)
 print("\n")
 print("DB Result: ", query_result[:10])
 
+import pickle
+from models import AttnEncoderDecoder  # Import your model class
+
+# Load tokenizers
+with open("hf_src_tokenizer.pkl", "rb") as f_src:
+    hf_src_tokenizer = pickle.load(f_src)
+with open("hf_tgt_tokenizer.pkl", "rb") as f_tgt:
+    hf_tgt_tokenizer = pickle.load(f_tgt)
+
+# Re-instantiate the model
+model = AttnEncoderDecoder(
+    hf_src_tokenizer=hf_src_tokenizer,
+    hf_tgt_tokenizer=hf_tgt_tokenizer,
+    hidden_size=2,  # Match the hidden size used during training
+    layers=1         # Match the number of layers used during training
+).to('cuda' if torch.cuda.is_available() else 'cpu')
+
+# Load saved weights
+model.load_state_dict(torch.load("attn_encoder_decoder_weights.pth"))
+model.eval()  # Set the model to evaluation mode
+
+# Use the model for prediction
+def predict_flight_query(query):
+    return model.predict(query)
+
+prediction = predict_flight_query(query)
+print("Prediction:", prediction)
+    

@@ -1,7 +1,7 @@
 
 import sys
 from collections import defaultdict
-'''
+
 # Check if the script was called with a query argument
 if len(sys.argv) > 1:
     query = sys.argv[1]  # The first command-line argument is the query
@@ -9,8 +9,7 @@ if len(sys.argv) > 1:
 else:
     print("No query provided.")
 
-'''
-query = "flights from boston to new york"
+
 # Please do not change this cell because some hidden tests might depend on it.
 import subprocess
 import os

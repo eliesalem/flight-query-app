@@ -31,7 +31,7 @@ async function submitQuery() {
         if (data.error) {
             document.getElementById('responseText').textContent = `Error: ${data.error}`;
         } else {
-            document.getElementById('responseText').textContent = data.result;
+            document.getElementById('responseText').innerHTML = data.result;
         }
 
     } catch (error) {

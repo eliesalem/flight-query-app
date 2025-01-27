@@ -1,5 +1,4 @@
 
-print('hello')
 
 import sys
 from collections import defaultdict
@@ -53,7 +52,10 @@ from torch.nn.utils.rnn import pad_packed_sequence as unpack
 from tqdm.notebook import tqdm
 from transformers import BartTokenizer, BartForConditionalGeneration
 
-print("hi")
+
+    
+
+#print("hi")
 
 # Set random seeds for reproducibility
 SEED = 1234
@@ -127,7 +129,7 @@ arithmetic_grammar, arithmetic_augmentations = xform.parse_augmented_grammar(
     ## Sample grammar for arithmetic expressions
 
     S -> NUM                              : lambda Num: Num
-       | S OP S                           : lambda S1, Op, S2: Op(S1, S2)
+    | S OP S                           : lambda S1, Op, S2: Op(S1, S2)
 
     OP -> ADD                             : lambda Op: Op
         | SUB
@@ -135,16 +137,16 @@ arithmetic_grammar, arithmetic_augmentations = xform.parse_augmented_grammar(
         | DIV
 
     NUM -> 'zero'                         : lambda: 0
-         | 'one'                          : lambda: 1
-         | 'two'                          : lambda: 2
-         | 'three'                        : lambda: 3
-         | 'four'                         : lambda: 4
-         | 'five'                         : lambda: 5
-         | 'six'                          : lambda: 6
-         | 'seven'                        : lambda: 7
-         | 'eight'                        : lambda: 8
-         | 'nine'                         : lambda: 9
-         | 'ten'                          : lambda: 10
+        | 'one'                          : lambda: 1
+        | 'two'                          : lambda: 2
+        | 'three'                        : lambda: 3
+        | 'four'                         : lambda: 4
+        | 'five'                         : lambda: 5
+        | 'six'                          : lambda: 6
+        | 'seven'                        : lambda: 7
+        | 'eight'                        : lambda: 8
+        | 'nine'                         : lambda: 9
+        | 'ten'                          : lambda: 10
 
     ADD -> 'plus' | 'added' 'to'          : lambda: lambda x, y: x + y
     SUB -> 'minus'                        : lambda: lambda x, y: x - y
@@ -157,8 +159,8 @@ def interpret(tree, augmentations):
     #print(f"Syntactic rule: {syntactic_rule}")  # Debugging line
     semantic_rule = augmentations[syntactic_rule]
     child_meanings = [interpret(child, augmentations)
-                      for child in tree
-                      if isinstance(child, nltk.Tree)]
+                    for child in tree
+                    if isinstance(child, nltk.Tree)]
     #print(f"Child meanings: {child_meanings}")  # Debugging line
     result = semantic_rule(*child_meanings)
     #print(f"Interpretation result: {result}")  # Debugging line
@@ -166,45 +168,45 @@ def interpret(tree, augmentations):
 
 
 def parse_and_interpret(string, grammar, augmentations):
-  parser = nltk.parse.BottomUpChartParser(grammar)
-  parses = parser.parse(string.split())
-  for parse in parses:
-    parse.pretty_print()
-    print("==>", interpret(parse, augmentations))
+    parser = nltk.parse.BottomUpChartParser(grammar)
+    parses = parser.parse(string.split())
+    for parse in parses:
+        parse.pretty_print()
+        print("==>", interpret(parse, augmentations))
 
 def constant(value):
-  """Return `value`, ignoring any arguments"""
-  return lambda *args: value
+    """Return `value`, ignoring any arguments"""
+    return lambda *args: value
 
 def first(*args):
-  """Return the value of the first (and perhaps only) subconstituent,
-     ignoring any others"""
-  return args[0]
+    """Return the value of the first (and perhaps only) subconstituent,
+        ignoring any others"""
+    return args[0]
 
 def numeric_template(rhs):
-  """Ignore the subphrase meanings and lookup the first right-hand-side symbol
-     as a number"""
-  return constant({'zero':0, 'one':1, 'two':2, 'three':3, 'four':4, 'five':5,
-          'six':6, 'seven':7, 'eight':8, 'nine':9, 'ten':10}[rhs[0]])
+    """Ignore the subphrase meanings and lookup the first right-hand-side symbol
+        as a number"""
+    return constant({'zero':0, 'one':1, 'two':2, 'three':3, 'four':4, 'five':5,
+            'six':6, 'seven':7, 'eight':8, 'nine':9, 'ten':10}[rhs[0]])
 
 def forward(F, A):
-  """Forward application: Return the application of the first
-     argument to the second"""
-  return F(A)
+    """Forward application: Return the application of the first
+        argument to the second"""
+    return F(A)
 
 def backward(A, F):
-  """Backward application: Return the application of the second
-     argument to the first"""
-  return F(A)
+    """Backward application: Return the application of the second
+        argument to the first"""
+    return F(A)
 
 def second(*args):
-  """Return the value of the second subconstituent, ignoring any others"""
-  return args[1]
+    """Return the value of the second subconstituent, ignoring any others"""
+    return args[1]
 
 def ignore(*args):
-  """Return `None`, ignoring everything about the constituent. (Good as a
-     placeholder until a better augmentation can be devised.)"""
-  return None
+    """Return `None`, ignoring everything about the constituent. (Good as a
+        placeholder until a better augmentation can be devised.)"""
+    return None
 
 # Process data into CSV files
 for split in ['train', 'dev', 'test']:
@@ -224,7 +226,7 @@ for split in ['train', 'dev', 'test']:
 tokenizer_pattern = '\d+|st\.|[\w-]+|\$[\d\.]+|\S+'
 nltk_tokenizer = nltk.tokenize.RegexpTokenizer(tokenizer_pattern)
 def tokenize_nltk(string):
-  return nltk_tokenizer.tokenize(string.lower())
+    return nltk_tokenizer.tokenize(string.lower())
 
 ## Demonstrating the tokenizer
 ## Note especially the handling of `"11pm"` and hyphenated words.
@@ -258,30 +260,30 @@ src_tokenizer.pre_tokenizer = Split(Regex(tokenizer_pattern),
                                     invert=True)
 
 src_trainer = WordLevelTrainer(min_frequency=MIN_FREQ,
-                               special_tokens=[pad_token, unk_token])
+                            special_tokens=[pad_token, unk_token])
 src_tokenizer.train_from_iterator(train_data['src'],
-                                  trainer=src_trainer)
+                                trainer=src_trainer)
 
 ## target tokenizer
 tgt_tokenizer = Tokenizer(WordLevel(unk_token=unk_token))
 tgt_tokenizer.pre_tokenizer = WhitespaceSplit()
 
 tgt_trainer = WordLevelTrainer(min_frequency=MIN_FREQ,
-                               special_tokens=[pad_token, unk_token,
-                                               bos_token, eos_token])
+                            special_tokens=[pad_token, unk_token,
+                                            bos_token, eos_token])
 tgt_tokenizer.train_from_iterator(train_data['tgt'],
-                                  trainer=tgt_trainer)
+                                trainer=tgt_trainer)
 tgt_tokenizer.post_processor = \
     TemplateProcessing(single=f"{bos_token} $A {eos_token}",
-                       special_tokens=[(bos_token,
+                    special_tokens=[(bos_token,
                                         tgt_tokenizer.token_to_id(bos_token)),
-                                       (eos_token,
+                                    (eos_token,
                                         tgt_tokenizer.token_to_id(eos_token))])
 
 hf_src_tokenizer = PreTrainedTokenizerFast(tokenizer_object=src_tokenizer,
-                                           pad_token=pad_token)
+                                        pad_token=pad_token)
 hf_tgt_tokenizer = PreTrainedTokenizerFast(tokenizer_object=tgt_tokenizer,
-                                           pad_token=pad_token)
+                                        pad_token=pad_token)
 
 def encode(example):
     example['src_ids'] = hf_src_tokenizer(example['src']).input_ids
@@ -332,13 +334,13 @@ def collate_fn(examples):
     return batch
 
 train_iter = torch.utils.data.DataLoader(train_data,
-                                         batch_size=BATCH_SIZE,
-                                         shuffle=True,
-                                         collate_fn=collate_fn)
+                                        batch_size=BATCH_SIZE,
+                                        shuffle=True,
+                                        collate_fn=collate_fn)
 val_iter = torch.utils.data.DataLoader(val_data,
-                                       batch_size=BATCH_SIZE,
-                                       shuffle=False,
-                                       collate_fn=collate_fn)
+                                    batch_size=BATCH_SIZE,
+                                    shuffle=False,
+                                    collate_fn=collate_fn)
 test_iter = torch.utils.data.DataLoader(test_data,
                                         batch_size=TEST_BATCH_SIZE,
                                         shuffle=False,
@@ -346,51 +348,51 @@ test_iter = torch.utils.data.DataLoader(test_data,
 
 @func_set_timeout(TIMEOUT)
 def execute_sql(sql):
-  conn = sqlite3.connect('data/atis_sqlite.db')  # establish the DB based on the downloaded data
-  c = conn.cursor()                              # build a "cursor"
-  c.execute(sql)
-  results = list(c.fetchall())
-  c.close()
-  conn.close()
-  return results
+    conn = sqlite3.connect('data/atis_sqlite.db')  # establish the DB based on the downloaded data
+    c = conn.cursor()                              # build a "cursor"
+    c.execute(sql)
+    results = list(c.fetchall())
+    c.close()
+    conn.close()
+    return results
 
 def upper(term):
-  return '"' + term.upper() + '"'
+    return '"' + term.upper() + '"'
 
 def weekday(day):
-  return f"flight.flight_days IN (SELECT days.days_code FROM days WHERE days.day_name = '{day.upper()}')"
+    return f"flight.flight_days IN (SELECT days.days_code FROM days WHERE days.day_name = '{day.upper()}')"
 
 def month_name(month):
-  return {'JANUARY' : 1,
-          'FEBRUARY' : 2,
-          'MARCH' : 3,
-          'APRIL' : 4,
-          'MAY' : 5,
-          'JUNE' : 6,
-          'JULY' : 7,
-          'AUGUST' : 8,
-          'SEPTEMBER' : 9,
-          'OCTOBER' : 10,
-          'NOVEMBER' : 11,
-          'DECEMBER' : 12}[month.upper()]
+    return {'JANUARY' : 1,
+            'FEBRUARY' : 2,
+            'MARCH' : 3,
+            'APRIL' : 4,
+            'MAY' : 5,
+            'JUNE' : 6,
+            'JULY' : 7,
+            'AUGUST' : 8,
+            'SEPTEMBER' : 9,
+            'OCTOBER' : 10,
+            'NOVEMBER' : 11,
+            'DECEMBER' : 12}[month.upper()]
 
 def airports_from_airport_name(airport_name):
-  return f"(SELECT airport.airport_code FROM airport WHERE airport.airport_name = {upper(airport_name)})"
+    return f"(SELECT airport.airport_code FROM airport WHERE airport.airport_name = {upper(airport_name)})"
 
 def airports_from_city(city):
-  return f"""
-    (SELECT airport_service.airport_code FROM airport_service WHERE airport_service.city_code IN
-      (SELECT city.city_code FROM city WHERE city.city_name = {upper(city)}))
-  """
+    return f"""
+        (SELECT airport_service.airport_code FROM airport_service WHERE airport_service.city_code IN
+        (SELECT city.city_code FROM city WHERE city.city_name = {upper(city)}))
+    """
 
 def null_condition(*args, **kwargs):
-  return 1
+    return 1
 
 def depart_around(time):
-  return f"""
-    flight.departure_time >= {add_delta(miltime(time), -15).strftime('%H%M')}
-    AND flight.departure_time <= {add_delta(miltime(time), 15).strftime('%H%M')}
-    """.strip()
+    return f"""
+        flight.departure_time >= {add_delta(miltime(time), -15).strftime('%H%M')}
+        AND flight.departure_time <= {add_delta(miltime(time), 15).strftime('%H%M')}
+        """.strip()
 
 def add_delta(tme, delta):
     # transform to a full datetime first
@@ -398,21 +400,21 @@ def add_delta(tme, delta):
             datetime.timedelta(minutes=delta)).time()
 
 def miltime(minutes):
-  return datetime.time(hour=int(minutes/100), minute=(minutes % 100))
+    return datetime.time(hour=int(minutes/100), minute=(minutes % 100))
 
 atis_grammar, atis_augmentations = xform.read_augmented_grammar('data/grammar', globals=globals())
 atis_parser = nltk.parse.BottomUpChartParser(atis_grammar)
 
 def parse_tree(sentence):
-  """Parse a sentence and return the parse tree, or None if failure."""
-  try:
-    parses = list(atis_parser.parse(tokenize_nltk(sentence)))
-    if len(parses) == 0:
-      return None
-    else:
-      return parses[0]
-  except:
-    return None
+    """Parse a sentence and return the parse tree, or None if failure."""
+    try:
+        parses = list(atis_parser.parse(tokenize_nltk(sentence)))
+        if len(parses) == 0:
+            return None
+        else:
+            return parses[0]
+    except:
+        return None
 
 def check_coverage(sentence_file):
     """ Tests the coverage of the grammar on the sentences in the
@@ -800,25 +802,6 @@ class AttnEncoderDecoder(nn.Module):
 
         return prediction
 
-EPOCHS = 1
-# we start with 1 epoch, but for good performance
-# you'll want to use many more epochs, perhaps 10
-LEARNING_RATE = 1e-4
-
-# Instantiate and train classifier
-model = AttnEncoderDecoder(
-    hf_src_tokenizer,
-    hf_tgt_tokenizer,
-    hidden_size=2,
-    layers=1,
-).to(device)
-
-model.train_all(train_iter, val_iter, epochs=EPOCHS, learning_rate=LEARNING_RATE)
-
-# Evaluate model performance on the validation set using the best model found. 
-# The expected value should be < 1.2
-model.load_state_dict(model.best_model)
-print (f'Validation perplexity: {model.evaluate_ppl(tqdm(val_iter)):.3f}')
 
 
 
@@ -1009,50 +992,77 @@ class AttnEncoderDecoder2(nn.Module):
         prediction = self.hf_tgt_tokenizer.decode(prediction, skip_special_tokens=True)
 
         return prediction
+ 
+
+
+if __name__ == "__main__":
+
+
+
+
+    import pickle
+
+    EPOCHS = 1
+    # we start with 1 epoch, but for good performance
+    # you'll want to use many more epochs, perhaps 10
+    LEARNING_RATE = 1e-4
+
+    # Instantiate and train classifier
+    model = AttnEncoderDecoder(
+        hf_src_tokenizer,
+        hf_tgt_tokenizer,
+        hidden_size=2,
+        layers=1,
+    ).to(device)
+
+    model.train_all(train_iter, val_iter, epochs=EPOCHS, learning_rate=LEARNING_RATE)
+
+    # Evaluate model performance on the validation set using the best model found. 
+    # The expected value should be < 1.2
+    model.load_state_dict(model.best_model)
+    print (f'Validation perplexity: {model.evaluate_ppl(tqdm(val_iter)):.3f}')
+
+   
+    EPOCHS = 1 # epochs; we start with 1 epoch, but for good performance 
+            # you'll want to use many more epochs, perhaps 20
+    LEARNING_RATE = 1e-4
+
+    # Instantiate and train classifier
+    model2 = AttnEncoderDecoder2(hf_src_tokenizer, hf_tgt_tokenizer,
+    hidden_size    = 512,
+    layers         = 3,
+    ).to(device)
+
+    model2.train_all(train_iter, val_iter, epochs=EPOCHS, learning_rate=LEARNING_RATE)
+    model2.load_state_dict(model2.best_model)
+    print(f"Validation perplexity: {model2.evaluate_ppl(val_iter):.3f}")
+
+    query = "flights from boston to new york"
+
     
-EPOCHS = 1 # epochs; we start with 1 epoch, but for good performance 
-           # you'll want to use many more epochs, perhaps 20
-LEARNING_RATE = 1e-4
+    # Assuming `model`, `hf_src_tokenizer`, and `hf_tgt_tokenizer` are defined after training
+    torch.save(model.state_dict(), "attn_encoder_decoder_weights.pth")
+    torch.save(model2.state_dict(), "attn_encoder_decoder2_weights.pth")
 
-# Instantiate and train classifier
-model2 = AttnEncoderDecoder2(hf_src_tokenizer, hf_tgt_tokenizer,
-  hidden_size    = 512,
-  layers         = 3,
-).to(device)
+    # Save tokenizers
+    with open("hf_src_tokenizer.pkl", "wb") as f_src:
+        pickle.dump(hf_src_tokenizer, f_src)
+    with open("hf_tgt_tokenizer.pkl", "wb") as f_tgt:
+        pickle.dump(hf_tgt_tokenizer, f_tgt)
 
-model2.train_all(train_iter, val_iter, epochs=EPOCHS, learning_rate=LEARNING_RATE)
-model2.load_state_dict(model2.best_model)
-print(f"Validation perplexity: {model2.evaluate_ppl(val_iter):.3f}")
+    model.eval()  # Set the model to evaluation mode
+    model2.eval()
 
-query = "flights from boston to new york"
+    # Use the model for prediction
+    def predict_flight_query1(query):
+        return model.predict(query, K=1, max_T=400)
 
+    prediction1 = predict_flight_query1(query)
+    print("Model 1 Prediction:", prediction1)
 
+    # Use the model for prediction
+    def predict_flight_query2(query):
+        return model2.predict(query, K=1, max_T=400)
 
-import pickle
-
-# Assuming `model`, `hf_src_tokenizer`, and `hf_tgt_tokenizer` are defined after training
-torch.save(model.state_dict(), "attn_encoder_decoder_weights.pth")
-torch.save(model2.state_dict(), "attn_encoder_decoder2_weights.pth")
-
-# Save tokenizers
-with open("hf_src_tokenizer.pkl", "wb") as f_src:
-    pickle.dump(hf_src_tokenizer, f_src)
-with open("hf_tgt_tokenizer.pkl", "wb") as f_tgt:
-    pickle.dump(hf_tgt_tokenizer, f_tgt)
-
-model.eval()  # Set the model to evaluation mode
-model2.eval()
-
-# Use the model for prediction
-def predict_flight_query1(query):
-    return model.predict(query, K=1, max_T=400)
-
-prediction1 = predict_flight_query1(query)
-print("Model 1 Prediction:", prediction1)
-
-# Use the model for prediction
-def predict_flight_query2(query):
-    return model2.predict(query, K=1, max_T=400)
-
-prediction2 = predict_flight_query2(query)
-print("Model 2 Prediction:", prediction2)
+    prediction2 = predict_flight_query2(query)
+    print("Model 2 Prediction:", prediction2)

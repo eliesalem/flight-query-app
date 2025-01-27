@@ -573,6 +573,6 @@ if __name__ == "__main__":
         print("<br><b>Model 2 DB Result: </b>", model2_db_result[:10])
     else:
         #return_string += "<br>Error: Model 2 query is not valid sql."
-        print("<br><b>Model 2: DB Result: </b>Error: Model 2 query is not valid sql.")
+        print("<br><b>Model 2 DB Result: </b>Error: Model 2 query is not valid sql.")
 
     #print("python is running and return string is updating", return_string)
